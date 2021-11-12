@@ -13,6 +13,9 @@ public class Principal {
         Ring ring = new Ring();
         Boxeador boxeador1 = new Boxeador("Tyson", ring);
         Boxeador boxeador2 = new Boxeador("Rocky", ring);
+        boxeador1.setRival(boxeador2);
+        boxeador2.setRival(boxeador1);
+
         Thread t1 = new Thread(boxeador1);
         Thread t2 = new Thread(boxeador2);
 

@@ -1,6 +1,8 @@
 package com.batalladeboxeo;
 
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Santiago Faci
@@ -11,11 +13,31 @@ public class Boxeador extends Thread {
     private String nombre;
     private Ring ring;
     private int golpes;
+    private boolean noqueado;
+    private Boxeador rival;
 
     public Boxeador(String nombre, Ring ring) {
 
         this.nombre = nombre;
         this.ring = ring;
+        noqueado = false;
+    }
+
+    public Boxeador getRival() {
+        return rival;
+    }
+
+    public void setRival(Boxeador rival) {
+        this.rival = rival;
+    }
+    
+
+    public boolean isNoqueado() {
+        return noqueado;
+    }
+
+    public void setNoqueado(boolean noqueado) {
+        this.noqueado = noqueado;
     }
 
     public String getNombre() {
@@ -28,17 +50,28 @@ public class Boxeador extends Thread {
 
     public void pegar() {
         golpes++;
+        rival.setNoqueado(true);
+    }
+    public void noquear(){
+        
     }
 
     @Override
     public void run() {
 
         while (!isInterrupted()) {
+            if(noqueado){
+                try {
+                    Thread.sleep(new Random().nextInt(250));
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Boxeador.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                noqueado = false;
+            }
             ring.pegar(this);
             try {
                 Thread.sleep(new Random().nextInt(1000));
-            } catch (InterruptedException e) {
-//                Thread.currentThread().interrupt();                           
+            } catch (InterruptedException e) {                          
             }
         }
     }
