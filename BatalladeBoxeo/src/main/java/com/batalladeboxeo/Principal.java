@@ -6,6 +6,8 @@ package com.batalladeboxeo;
  */
 import java.util.Scanner;
 
+
+
 public class Principal {
 
     public static void main(String args[]) {
@@ -15,6 +17,7 @@ public class Principal {
         Boxeador boxeador2 = new Boxeador("Rocky", ring);
         boxeador1.setRival(boxeador2);
         boxeador2.setRival(boxeador1);
+        
 
         Thread t1 = new Thread(boxeador1);
         Thread t2 = new Thread(boxeador2);
@@ -22,11 +25,11 @@ public class Principal {
         t1.start();
         t2.start();
 
-                Scanner scan = new Scanner(System.in);
-                String p = scan.nextLine();
+        Scanner scan = new Scanner(System.in);
+        String p = scan.nextLine();
                 
-        boxeador1.interrupt();
-        boxeador2.interrupt();
+        t1.interrupt();
+        t2.interrupt();
         try {
             t1.join();
             t2.join();

@@ -1,6 +1,7 @@
 package com.batalladeboxeo;
 
 import java.util.Random;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -8,7 +9,7 @@ import java.util.logging.Logger;
  * @author Santiago Faci
  * @version curso 2014-2015
  */
-public class Boxeador extends Thread {
+public class Boxeador implements Runnable {
 
     private String nombre;
     private Ring ring;
@@ -21,6 +22,7 @@ public class Boxeador extends Thread {
         this.nombre = nombre;
         this.ring = ring;
         noqueado = false;
+ 
     }
 
     public Boxeador getRival() {
@@ -59,7 +61,7 @@ public class Boxeador extends Thread {
     @Override
     public void run() {
 
-        while (!isInterrupted()) {
+        while (!Thread.currentThread().isInterrupted()) {
             if(noqueado){
                 try {
                     Thread.sleep(new Random().nextInt(250));
