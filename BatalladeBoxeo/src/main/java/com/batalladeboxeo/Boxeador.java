@@ -1,28 +1,34 @@
 package com.batalladeboxeo;
 
 import java.util.Random;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.Condition;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.concurrent.locks.ReentrantLock;
+
 
 /**
  * @author Santiago Faci
  * @version curso 2014-2015
  */
-public class Boxeador implements Runnable {
+public class Boxeador extends Thread {
 
     private String nombre;
     private Ring ring;
     private int golpes;
     private boolean noqueado;
     private Boxeador rival;
+    private ReentrantLock lock;
+    private Condition sePuede;
+    private volatile boolean hit;
 
-    public Boxeador(String nombre, Ring ring) {
+    public Boxeador(String nombre, Ring ring, ReentrantLock lock) {
 
         this.nombre = nombre;
         this.ring = ring;
         noqueado = false;
- 
+        this.lock = lock;
+        this.sePuede = lock.newCondition();
     }
 
     public Boxeador getRival() {
@@ -61,20 +67,26 @@ public class Boxeador implements Runnable {
     @Override
     public void run() {
 
-        while (!Thread.currentThread().isInterrupted()) {
-            if(noqueado){
-                try {
-                    Thread.sleep(new Random().nextInt(250));
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(Boxeador.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                noqueado = false;
-            }
-            ring.pegar(this);
+        while (!isInterrupted()) {
+            lock.lock();
             try {
-                Thread.sleep(new Random().nextInt(1000));
-            } catch (InterruptedException e) {                          
+                if (noqueado) {
+                    try {
+                        Thread.sleep(new Random().nextInt(250));
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Boxeador.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    noqueado = false;
+                }
+                ring.pegar(this);
+                try {
+                    Thread.sleep(new Random().nextInt(1000));
+                } catch (InterruptedException e) {
+                }
+            }finally{
+                lock.unlock();
             }
+
         }
     }
 }
