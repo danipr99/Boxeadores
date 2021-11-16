@@ -15,12 +15,11 @@ public class Boxeador extends Thread {
 
     private String nombre;
     private Ring ring;
-    private int golpes;
+    
     private boolean noqueado;
-    private Boxeador rival;
-    private ReentrantLock lock;
-    private Condition sePuede;
-    private volatile boolean hit;
+    private final ReentrantLock lock;
+    private final Condition sePuede;
+    private volatile boolean play;
 
     public Boxeador(String nombre, Ring ring, ReentrantLock lock) {
 
@@ -31,13 +30,7 @@ public class Boxeador extends Thread {
         this.sePuede = lock.newCondition();
     }
 
-    public Boxeador getRival() {
-        return rival;
-    }
 
-    public void setRival(Boxeador rival) {
-        this.rival = rival;
-    }
     
 
     public boolean isNoqueado() {
@@ -53,40 +46,43 @@ public class Boxeador extends Thread {
     }
 
     public int getGolpes() {
-        return golpes;
+        return ring.getGolpes(this);
     }
 
-    public void pegar() {
-        golpes++;
-        rival.setNoqueado(true);
-    }
+
     public void noquear(){
-        
+        noqueado=true;
     }
 
     @Override
     public void run() {
 
         while (!isInterrupted()) {
+            System.out.println("Va a golpear " + getNombre());
             lock.lock();
             try {
                 if (noqueado) {
+
+                    System.out.println(getNombre() + " esta noqueado");
                     try {
-                        Thread.sleep(new Random().nextInt(250));
+                        Thread.sleep(new Random().nextInt(100));
                     } catch (InterruptedException ex) {
-                        Logger.getLogger(Boxeador.class.getName()).log(Level.SEVERE, null, ex);
+                        interrupt();
+                      Logger.getLogger(Boxeador.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     noqueado = false;
                 }
+
                 ring.pegar(this);
                 try {
                     Thread.sleep(new Random().nextInt(1000));
-                } catch (InterruptedException e) {
+
+                } catch (InterruptedException ex) {
+                    interrupt();
                 }
-            }finally{
+            } finally {
                 lock.unlock();
             }
-
         }
     }
 }
